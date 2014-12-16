@@ -818,15 +818,18 @@ class PcpStats(object):
                 ['Start', '%s' % date_string(datetime.datetime.fromtimestamp(self.pcparchive.start))],
                 ['End', '%s' % date_string(datetime.datetime.fromtimestamp(self.pcparchive.end))],
                 ['Created', '%s' % date_string(datetime.datetime.now())], ]
+        rows = 4
         if self.pcparchive.interval:
             data.append(['Interval', '%s seconds' % self.pcparchive.interval])
+            rows = 5
         style = [('GRID', (0, 0), (-1, -1), 1, reportlab.lib.colors.black),
                  ('ALIGN', (0, 0), (-1, -1), "LEFT"),
                  ('FONTSIZE', (0, 0), (-1, -1), 14),
                  ('FONTNAME', (0, 0), (-1, -1), "Helvetica"),
                  ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                  ('INNERGRID', (0, 0), (-1, -1), 0.44, reportlab.lib.colors.black), ]
-        table = Table(data, 2 * [3.5 * inch], 5 * [0.4 * inch])
+
+        table = Table(data, 2 * [3.5 * inch], rows * [0.4 * inch])
         table.setStyle(style)
         self.story.append(table)
 

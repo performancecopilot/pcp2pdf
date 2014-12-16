@@ -6,8 +6,6 @@
 - Right now we use a fairly big DPI in order to make the images a bit higher quality
   This takes more time and consumes a lot more memory. Is there no better way?
 
-- Interval estimation seems to be wrong when interval is extremely low (see tests/naslog.0)
-
 - Add events support so that we have an automatic marker when an event is present
   in an archive
 
