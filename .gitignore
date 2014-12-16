@@ -1,0 +1,10 @@
+*.pyc
+*.pdf
+*.pyo
+build_python
+build/
+dist/
+myfiles/
+outputs/
+rpm-build.sh
+*.swp

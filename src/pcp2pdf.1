@@ -1,0 +1,147 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PCP2PDF 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp2pdf\f1 \- create a pdf report from a PCP archive
+.SH SYNOPSIS
+\f3pcp2pdf\f1
+[\f3\-grV?\f1]
+[\f3\-i\f1 \f2include metrics\f1]
+[\f3\-e\f1 \f2exclude metrics\f1]
+[\f3\-c\f1 \f2custom graphs\f1]
+[\f3\-o\f1 \f2output filename\f1]
+[\f3\-S\f1 \f2start time\f1]
+[\f3\-T\f1 \f2finish time\f1]
+[\f3\-t\f1 \f2time interval\f1]
+[\f3\-l\f1 \f2custom label\f1]
+[\f3\-m\f1 \f2max indoms\f1]
+\f3\-a\f1 \f2archive\f1
+.SH DESCRIPTION
+.B pcp2pdf
+creates a PDF file containing a graph plotting each metric contained in
+the PCP archive.
+.PP
+.B pcp2pdf
+only operates on archive files and cannot use live data.
+.PP
+.B pcp2pdf
+needs a locally running.
+.I pmcd
+in order to fetch the help description of each metric. Without it the
+description help texts won't be present.
+.PP
+By default
+.B pcp2pdf
+will graph all the metrics contained in an archive file. Use the
+.B \-\-include
+and
+.B \-\-exclude
+options to manipulate which metrics should be present in the output.
+.PP
+Other options control the specific information to be reported.
+.TP 5
+.BI "\-i|\-\-include " metrics
+Includes metrics which match the specified regular expression.
+For example:
+.I \-\-include 'network.*'
+will include only metrics starting with 'network.'. The option can be specified
+multiple times. If only
+.B \-\-include
+is specified, only the matching metrics will
+be included in the output. If both
+.B \-\-include
+and
+.B \-\-exclude
+are specified, first all excluded metrics are evaluted, and then the ones
+explicitely included.
+.TP
+.BI "\-e|\-\-exclude " metrics
+Excludes metrics which match the specified regular expression. For example:
+.B \-\-exclude 'proc.*'
+will exclude all metrics starting with 'proc.'.
+The option can be specified multiple times. If only
+.B \-\-exclude
+is specified, all metrics are shown except the specified ones
+.TP
+.BI "\-o|\-\-output"
+Output file name (default:
+.I output.pdf
+)
+.TP
+.BI "\-c|\-\-custom " custom_graphs
+Add custom graphs with multiple metrics. For example:
+.I \-\-custom 'traffic:network.tcp.outrsts:.*,network.tcp.ofoqueue.*,network.interfaces.out.*:eth[0-9]'
+will create a 'traffic' page with the each matched metric and the corresponding matched indom
+single graph. The general syntax is the following:
+.I \-\-custom '<label>:<metric1_regex>:<indom1_regex>,...<metricN_regex>:<indomN_regex>'
+The option can be specified multiple times. This makes it easy to try and correlate metrics that normally
+would not appear on the same graph. The different metrics' values need to be in similar scales or the
+graph will be not too useful.
+.TP
+.BI "\-r|\-\-raw"
+Disable the rate conversion for all the metrics that have the
+.I PM_SEM_COUNTER
+semantic associated with them. By default those are converted via the
+following formula:
+.I (value(T) \- value(T\-1)) / (T \- T\-1)
+By setting this option the aforementioned conversion will not take place.
+.TP
+.BI "\l|\-\-label " labels
+Adds one or more labels to a graph at specified time.
+For example:
+.I \-\-label 'foo:2014-01-01 13:45:03' \-\-label 'bar:2014-01-02 13:15:15'
+will add two extra labels on every graph at those times.
+This is usually useful for correlation analysis. The time format is
+specified in the
+.B PCPIntro
+man page.
+.TP
+.BI "\-g|\-\-groupindom"
+Adds pages where each page has all the metrics belonging to the same indom.
+WORKINPROGRESS
+.TP
+.BI "\-S|\-\-start " time
+Sets the start of the time window. See
+.BR PCPIntro (1)
+for the accepted
+.I time
+formats
+.TP
+.BI "\-T|\-\-finish " time
+Sets the end of the time window. See
+.BR PCPIntro (1)
+for the accepted
+.I time
+formats
+.TP
+.BI "\-t|\-\-interval " delta
+Sets the sampling interval. See
+.BR PCPIntro (1)
+for the accepted
+.I time
+interval formats
+.TP
+.BI "\-a|\-\-archive " file
+Sets the PCP archive name to be parsed
+.TP
+.BI "\-n|\-\-nohistogram"
+Disable the frequency histogram graphs (enabled by default)
+.TP
+.BI "\-V|\-\-version"
+Display version number and exit
+.TP
+.BI "\-?|\-\-help"
+Show the usage message and exit

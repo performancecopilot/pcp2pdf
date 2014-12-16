@@ -1,0 +1,122 @@
+- Rename all the fonts sections/names to proper sensible names
+
+- Refactor PcpStyle class so that no style setting/action/method is
+  done directly in PcpStats
+
+- Right now we use a fairly big DPI in order to make the images a bit higher quality
+  This takes more time and consumes a lot more memory. Is there no better way?
+
+- Interval estimation seems to be wrong when interval is extremely low (see tests/naslog.0)
+
+- Add events support so that we have an automatic marker when an event is present
+  in an archive
+
+- Go through all the FIXMEs
+
+- Performance of the parsing step
+while tinkering with pcp2pdf one of my goals is to be able
+to render a fairly big archive which also includes per process metrics.
+On one of my servers such a daily archive file is around 800MB or so.
+
+Currently my archive parsing looks more or less like this ~250 liner:
+https://gist.github.com/mbaldessari/30dc7ae2fe46d9b804f2
+
+I basically use a function that returns a big dictionary in the following
+form:
+{ metric1: {'indom1': [(ts0, ts1, .., tsN), (v0, v1, .., vN)],
+           ....
+            'indomN': [(ts0, ts1, .., tsN), (v0, v1, .., vN)]},
+  metric2: {'indom1': [(ts0, ts1, .., tsX), (v0, v1, .., vX)],
+           ....
+           'indomN': [(ts0, ts1, .., tsX), (v0, v1, .., vX)]}...}
+
+Profiling is giving me the following numbers:
+"""
+Parsing files: 20140908.0 - 764.300262451 MB
+Before parsing: usertime=0.066546 systime=0.011918 mem=12.34375 MB
+After parsing: usertime=1161.825736 systime=2.364544 mem=1792.53125 MB
+"""
+So roughly 1170 seconds, i.e. ~20 mins
+
+Profiling of parse()
+         725026682 function calls in 1169.003 seconds
+
+   Ordered by: cumulative time
+   List reduced from 72 to 15 due to restriction <15>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1  124.550  124.550 1169.003 1169.003 ./fetch.py:140(parse)
+ 29028435  111.320    0.000  693.559    0.000 ./fetch.py:113(_extract_value)
+ 57876970  134.777    0.000  539.856    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:379(get_vlist)
+146339015  367.384    0.000  367.384    0.000 /usr/lib64/python2.7/ctypes/__init__.py:496(cast)
+ 28848535   34.114    0.000  312.698    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:384(get_inst)
+ 57876970   89.000    0.000  254.070    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:374(get_vset)
+ 29028435  168.361    0.000  179.190    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:1724(pmExtractValue)
+ 29028435   61.598    0.000  141.777    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:364(get_valfmt)
+233809633   33.780    0.000   33.780    0.000 {_ctypes.POINTER}
+ 58013698    9.081    0.000    9.081    0.000 {method 'append' of 'list' objects}
+   519120    4.551    0.000    8.556    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:1243(pmLookupDesc)
+ 36257575    8.167    0.000    8.167    0.000 {_ctypes.byref}
+     1442    6.801    0.005    6.803    0.005 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:1578(pmFetch)
+   518760    4.574    0.000    4.884    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:1172(pmNameID)
+   518760    1.280    0.000    2.924    0.000 /usr/lib64/python2.7/site-packages/pcp/pmapi.py:369(get_numval)
+
+real    19m31.860s
+user    19m24.391s
+sys     0m2.566s
+"""
+
+While 20 minutes to parse such a big archive might be relatively ok, I was wondering
+what options I have to save time. The ones I can currently think of are:
+
+1) Split the time interval parsing over multiple CPUs. I can divide the archive in subintervals (one per
+cpu) and have each CPU do its own subinterval parsing and I stitch everything together at the end.
+This is the approach I currently use to create the graph images that go in the pdf (as matplotlib
+isn't the fastest thing on the planet)
+
+2) Implement a function in the C python bindings which returns a dictionary as described above.
+This would save me all the ctypes/__init__ costs and probably I would shave some time off as there
+would be less python->C function calls.
+
+3) See if I can use Cython tricks to speed up things 
+
+4) Ignore this issue as with a big archive, creating the actual graph images and the pdf will
+also take a fairly long time
+
+NB: I've tried using pmFetchArchive() but a) there was no substantial
+difference and b) pmFetchArchive() does not allow interpolation so
+users could not specify a custom time interval
+
+- Stable block device naming. Currently we either put sda,sdb,... or dm-0, dm-1 in
+  the indoms for certain pmdas. As neither is stable, could we try to fix
+  it by using the wwwid when available?
+
+- Write a custom qa test that creates a pdf with certain metrics (exercising most of the
+  options). The test could be running strings on the pdf and see if all the metrics
+  names are present (and not the metrics excluded)
+
+- Currently we need a running pmcd instance to try and fetch help text. 
+  Is there a smarter way?
+
+- Work on moving some of the basic archive parsing functionality
+  in the pcp python bindings themselves
+
+- Add a default set of custom graphs that are always automatically included
+  This could be done with the concept of 'profiles'. So something like:
+  pcp2pdf --profile='storage' would focus only on the stuff relevant for storage
+  performance. This would include relevant storage metrics and also some custom
+  metrics that correlate storage metrics with other relevant metrics
+
+- Verify that all the maths in rate conversion are always correct. Or check if there is
+  a way to disable the rate conversion or do it automatically via PCP libs
+
+- In the progress bar add a % of completion (we know start_time and end_time, so it should be easy)
+
+- Run the code through pylint and pyflake
+
+- Add test cases that exercise all possible command arguments, use some of the
+  archive files under qa/
+
+- Have the possibility to use a config file to customize how the pdf looks
+
+- Add bash autocompletion
