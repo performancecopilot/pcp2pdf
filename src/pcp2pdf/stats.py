@@ -817,8 +817,9 @@ class PcpStats(object):
         data = [['PCP Archive', '%s' % (" ".join(self.args))],
                 ['Start', '%s' % date_string(datetime.datetime.fromtimestamp(self.pcparchive.start))],
                 ['End', '%s' % date_string(datetime.datetime.fromtimestamp(self.pcparchive.end))],
-                ['Interval', '%s seconds' % self.pcparchive.interval],
                 ['Created', '%s' % date_string(datetime.datetime.now())], ]
+        if self.pcparchive.interval:
+            data.append(['Interval', '%s seconds' % self.pcparchive.interval])
         style = [('GRID', (0, 0), (-1, -1), 1, reportlab.lib.colors.black),
                  ('ALIGN', (0, 0), (-1, -1), "LEFT"),
                  ('FONTSIZE', (0, 0), (-1, -1), 14),
