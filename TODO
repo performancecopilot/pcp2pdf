@@ -10,9 +10,6 @@
 - Refactor PcpStyle class so that no style setting/action/method is
   done directly in PcpStats
 
-- Right now we use a fairly big DPI in order to make the images a bit higher quality
-  This takes more time and consumes a lot more memory. Is there no better way?
-
 - Add events support so that we have an automatic marker when an event is present
   in an archive
 

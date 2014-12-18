@@ -136,7 +136,10 @@ class PcpStats(object):
         self.doc = PcpDocTemplate(opts.output_file, self.configparser, pagesize=landscape(A4))
         self.pcphelp = PcpHelp()
         self.pcparchive = PcpArchive(args, opts)
-        self.DPI = self.configparser.getint('main', 'dpi')
+        if self.opts.dpi > 0:
+            self.DPI = self.opts.dpi
+        else:
+            self.DPI = self.configparser.getint('main', 'dpi')
         self.logo = self.configparser.get('main', 'logo')
         # Allow to be run from the current dir for unit-testing purposes
         if not os.path.isfile(self.logo):
@@ -603,6 +606,7 @@ class PcpStats(object):
                 # LEGEND_THRESHOLD
                 lgd = axes.legend(loc=1, ncol=int(indoms ** 0.5), shadow=True,
                                   prop=fontproperties)
+
 
         if lgd:
             plt.savefig(fname, bbox_extra_artists=(lgd,), bbox_inches='tight',

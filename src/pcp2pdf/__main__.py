@@ -53,6 +53,7 @@ class _Options(object):
         self.output_file = "output.pdf"
         self.interval = None
         self.labels = {}
+        self.dpi = None
         self.histogram = True
         self.opts = self.setup()
         self.threaded = run_threaded()
@@ -82,7 +83,7 @@ class _Options(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("nrVi:e:o:c:?S:T:t:a:l:m:")
+        opts.pmSetShortOptions("nrVi:e:o:c:?S:T:t:a:l:m:d:")
         opts.pmSetOptionFlags(c_api.PM_OPTFLAG_BOUNDARIES)
         opts.pmSetOptionFlags(c_api.PM_OPTFLAG_MULTI)
         opts.pmSetShortUsage("[options] -a <pcp_archive>\nFor example:\npcp2pdf -S \"May 30 12:00 2014\" -T \"May 30 15:00 2014\" -t \"4 minute\" \\\n -c \"traffic:network.interface.out.bytes:eth0,network.interface.in.bytes:*\" -l 'foo:2014-05-30 12:30:00' -a tests/20140530.0")
@@ -112,6 +113,9 @@ class _Options(object):
         opts.pmSetLongOptionText(t + "For example --label 'foo:2014-01-01 13:45:03' --label 'bar:2014-01-02 13:15:15' will add")
         opts.pmSetLongOptionText(t + "two extra labels on every graph at those times. This is useful for correlation work")
         opts.pmSetLongOption("nohistogram", 0, 'n', '', "Disables the creation of distribution histograms for each graph")
+        opts.pmSetLongOption("dpi", 1, 'd', '', "Sets the DPI used to create the images for the graph. Default is 200")
+        opts.pmSetLongOptionText(t + "unless overridden in the configuration. The lower the value, the less memory the process will need")
+        opts.pmSetLongOptionText(t + "and the less quality the graphs will have.")
         opts.pmSetLongOptionStart()
         opts.pmSetLongOptionFinish()
         opts.pmSetLongOptionInterval()
@@ -138,6 +142,12 @@ class _Options(object):
             self.end_time = optarg
         elif opt == "n":
             self.histogram = False
+        elif opt == "d":
+            try:
+                self.dpi = int(optarg)
+            except Exception:
+                print("Error parsing dpi: {0}".format(optarg))
+                sys.exit(1)
         elif opt == "t":
             self.interval = optarg
         elif opt == "e":
