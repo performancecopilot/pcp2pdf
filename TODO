@@ -1,3 +1,10 @@
+- disk.all.avactive help text talks about:
+  When converted to a rate, this metric represents the average utilization of all disks during
+  the sampling interval. A value of 0.25 (or 25%) means that on average every disk was active (i.e. busy) one
+  quarter of the time. (millisec - U64)
+ 
+  Yet the values are > 100 ?
+
 - Rename all the fonts sections/names to proper sensible names
 
 - Refactor PcpStyle class so that no style setting/action/method is

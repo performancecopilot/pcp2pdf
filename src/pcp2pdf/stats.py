@@ -680,6 +680,9 @@ class PcpStats(object):
                     print(traceback.format_exc())
                     sys.exit(-1)
 
+                # Have the Y axis always start from 0
+                axes.set_ylim(ymin=0)
+
                 indoms += 1
                 counter += 1
 
