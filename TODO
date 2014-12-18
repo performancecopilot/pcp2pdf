@@ -116,9 +116,4 @@ users could not specify a custom time interval
 
 - Run the code through pylint and pyflake
 
-- Add test cases that exercise all possible command arguments, use some of the
-  archive files under qa/
-
-- Have the possibility to use a config file to customize how the pdf looks
-
 - Add bash autocompletion
