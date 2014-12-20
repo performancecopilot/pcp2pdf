@@ -101,7 +101,6 @@ class PcpArchive(object):
         value = self.ctx.pmExtractValue(result.contents.get_valfmt(i),
                                         result.contents.get_vlist(i, inst),
                                         mtype, mtype)
-
         if mtype == c_api.PM_TYPE_U64:
             retval = value.ull
         elif mtype == c_api.PM_TYPE_U32:
@@ -161,7 +160,6 @@ class PcpArchive(object):
         "progress" is a callback function which takes a boolean argument (True
         when the pmFetch() call returned data and False if it did not)
         '''
-
         data = {}
         self.ctx.pmSetMode(c_api.PM_MODE_FORW, self.start, 0)
         # If the user defined an interval, we set it up
@@ -178,6 +176,8 @@ class PcpArchive(object):
         indom_map = {}
         metrics = self.get_metrics()
         pmids = self.get_pmids(metrics)
+        start = self._timestamp_to_secs(self.start)
+        end = self._timestamp_to_secs(self.end)
         while 1:
             try:
                 # We need to do this without pmFetchArchive() as it does not
@@ -193,15 +193,13 @@ class PcpArchive(object):
                     raise error
 
             secs = self._timestamp_to_secs(result.contents.timestamp)
+            ts = datetime.datetime.fromtimestamp(secs)
             if not (float(self.start) <= secs and secs <= float(self.end)):
                 self.ctx.pmFreeResult(result)
-                if progress:
-                    progress(False)
                 continue
 
-            ts = datetime.datetime.fromtimestamp(secs)
             if progress:
-                progress(True)
+                progress(secs, start, end)
 
             # Walk through the whole list of PMIDs fetched at time ts
             for i in range(result.contents.numpmid):

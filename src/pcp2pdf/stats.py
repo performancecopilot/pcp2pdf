@@ -59,6 +59,9 @@ FREQUENCY_ERROR = 1.1
 # of the page
 LEGEND_THRESHOLD = 50
 
+progress_counter = multiprocessing.Value('i', 0)
+progress_lock = multiprocessing.Lock()
+progress_total = 0
 
 def ellipsize(text, limit=20):
     '''Truncates a string in a nice-formatted way.'''
@@ -77,11 +80,14 @@ def date_string(dt):
     return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 
-def progress_callback(graph_added):
-    if graph_added:
-        sys.stdout.write('.')
-    else:
-        sys.stdout.write('-')
+def parse_progress_callback(ts, start, finish):
+    percentage = round(((ts - start) / (finish - start)) * 100.0, 1)
+    sys.stdout.write('\rParsing archive: [%s %s%%]' % ('#' * (int(percentage/10)), percentage))
+    sys.stdout.flush()
+
+def graph_progress_callback(pcpobj):
+    percentage = round((progress_counter.value / progress_total) * 100.0, 1)
+    sys.stdout.write('\rCreating graphs: [%s %s%%]' % ('#' * (int(percentage/10)), percentage))
     sys.stdout.flush()
 
 
@@ -99,15 +105,16 @@ def graph_wrapper((pcparch_obj, data)):
         ret = pcparch_obj.create_histogram(fname, label, metrics, indomres)
     else:
         ret = pcparch_obj.create_graph(fname, label, metrics, indomres)
-    progress_callback(ret)
+    with progress_lock:
+        progress_counter.value += 1
+    graph_progress_callback(pcparch_obj)
     return ((label, fname, metrics, text, indomres, histogram), ret)
 
 
 def print_mem_usage(data):
     usage = resource.getrusage(resource.RUSAGE_SELF)
     print("Graphing: {0} usertime={1} systime={2} mem={3} MB"
-          .format(data, usage[0], usage[1],
-                  (usage[2] / 1024.0)))
+          .format(data, usage[0], usage[1], (usage[2] / 1024.0)))
 
 
 def match_res(patterns, string, flags=0):
@@ -428,10 +435,10 @@ class PcpStats(object):
         rate converted
         '''
 
-        (all_data, self.skipped_graphs) = self.pcparchive.get_values(progress=progress_callback)
-        print(' total of {0} graphs'.format(len(all_data)), end='')
-        if len(self.skipped_graphs) > 0:
-            print(' - skipped {0} graphs'.format(len(self.skipped_graphs)), end='')
+        (all_data, self.skipped_graphs) = self.pcparchive.get_values(progress=parse_progress_callback)
+        sys.stdout.write('\rParsing archive: [########## 100.0%]')
+        sys.stdout.flush()
+        print()
 
         rate_converted = {}
         # Prune all the sets of values where all values are zero as it makes
@@ -449,8 +456,6 @@ class PcpStats(object):
 
             if len(tmp) > 0:
                 self.all_data[metric] = tmp
-
-        print(' - total of non-fully zeroed graphs {0}'.format(len(self.all_data)), end='')
 
         if self.opts.raw:  # User explicitely asked to not rate convert any metrics
             return rate_converted
@@ -804,11 +809,8 @@ class PcpStats(object):
 
     def output(self):
         # FIXME: Split this function in smaller pieces. This is unreadable
-        sys.stdout.write('Parsing archive: ')
-        sys.stdout.flush()
         self.rate_converted = self.parse()
         (self.all_graphs, string_metrics) = self.get_all_graphs()
-        print()
         if len(self.all_graphs) == 0:
             print('No usable non-zero graphs found.')
             sys.exit(0)
@@ -842,8 +844,9 @@ class PcpStats(object):
 
         self.story.append(PageBreak())
         done_metrics = []
+        global progress_total
+        progress_total = len(self.all_graphs)
         # This list contains the metrics that contained data
-        print('Creating graphs: ', end='')
         if self.opts.threaded:
             pool = multiprocessing.Pool(None)
             l = zip(itertools.repeat(self), self.all_graphs)
@@ -855,18 +858,14 @@ class PcpStats(object):
                 (label, fname, metrics, text, indomres, histogram) = graph
                 if histogram:
                     if self.create_histogram(fname, label, metrics, indomres):
-                        progress_callback(True)
                         done_metrics.append(graph)
-                    else:
-                        # Graphs had all zero values
-                        progress_callback(False)
+                    progress_counter.value += 1
                 else:
                     if self.create_graph(fname, label, metrics, indomres):
-                        progress_callback(True)
                         done_metrics.append(graph)
-                    else:
-                        # Graphs had all zero values
-                        progress_callback(False)
+                    progress_counter.value += 1
+                
+                graph_progress_callback(self)
                 
 
         print()
@@ -910,8 +909,6 @@ class PcpStats(object):
             if text:
                 self.story.append(Paragraph(text, self.doc.fonts["normal"]))
             self.story.append(PageBreak())
-            sys.stdout.write('.')
-            sys.stdout.flush()
 
         self.doc.multiBuild(self.story)
         print()

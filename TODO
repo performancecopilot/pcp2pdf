@@ -8,7 +8,8 @@
 - Rename all the fonts sections/names to proper sensible names
 
 - Refactor PcpStyle class so that no style setting/action/method is
-  done directly in PcpStats
+  done directly in PcpStats. Also try to make it so that no style stuff whatsoever
+  is set or used in the PcpStats class
 
 - Add events support so that we have an automatic marker when an event is present
   in an archive
