@@ -113,8 +113,6 @@ users could not specify a custom time interval
 - Verify that all the maths in rate conversion are always correct. Or check if there is
   a way to disable the rate conversion or do it automatically via PCP libs
 
-- In the progress bar add a % of completion (we know start_time and end_time, so it should be easy)
-
 - Run the code through pylint and pyflake
 
 - Add bash autocompletion
