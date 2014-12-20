@@ -9,3 +9,6 @@ outputs/
 rpm-build.sh
 *.swp
 docs/_build
+man/
+*.egg-info
+src/pcp2pdf.egg-info/SOURCES.txt

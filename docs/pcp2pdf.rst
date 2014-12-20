@@ -103,3 +103,9 @@ See also
 :manpage:`PCPIntro(1)`
 :manpage:`pmcd(1)`
 
+Homepage
+--------
+
+`Homepage <http://github.com/mbaldessari/pcp2pdf>`
+`Reporting issues <http://github.com/mbaldessari/pcp2pdf/issues>`
+

@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+import os
+import sys
+import subprocess
+import shutil
+import unittest
+
 try:
     from setuptools import setup
 except ImportError:
@@ -7,9 +13,6 @@ except ImportError:
 
 
 def discover_and_run_tests():
-    import os
-    import sys
-    import unittest
 
     # get setup.py directory
     setup_file = sys.modules['__main__'].__file__
@@ -39,6 +42,23 @@ class DiscoverTest(test):
 
     def run_tests(self):
         discover_and_run_tests()
+
+# Build manpages if we're making a source distribution tarball.
+if 'sdist' in sys.argv:
+    # Go into the docs directory and build the manpage.
+    docdir = os.path.join(os.path.dirname(__file__), 'docs')
+    curdir = os.getcwd()
+    os.chdir(docdir)
+    try:
+        subprocess.check_call(['make', 'man'])
+    finally:
+        os.chdir(curdir)
+
+    # Copy resulting manpages.
+    mandir = os.path.join(os.path.dirname(__file__), 'man')
+    if os.path.exists(mandir):
+        shutil.rmtree(mandir)
+    shutil.copytree(os.path.join(docdir, '_build', 'man'), mandir)
 
 config = {
     'name': 'pcp2pdf',

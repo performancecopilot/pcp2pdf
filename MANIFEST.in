@@ -1,5 +1,5 @@
 include COPYING
 include src/pcp2pdf.bash
 include src/pcp2pdf.conf
-include src/pcp2pdf.1
 include src/pcplogo.png
+include man/pcp2pdf.1
