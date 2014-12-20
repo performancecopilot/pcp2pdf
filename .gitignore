@@ -8,3 +8,4 @@ myfiles/
 outputs/
 rpm-build.sh
 *.swp
+docs/_build
