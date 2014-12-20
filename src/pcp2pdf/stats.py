@@ -894,6 +894,7 @@ class PcpStats(object):
 
         # At this point all images are created let's build the pdf
         print("Building pdf: ", end='')
+        sys.stdout.flush()
         # Add the graphs to the pdf
         last_category = ''
         for graph in done_metrics:
@@ -911,7 +912,5 @@ class PcpStats(object):
             self.story.append(PageBreak())
 
         self.doc.multiBuild(self.story)
-        print()
-        print("Done building: {0}".format(self.opts.output_file))
+        print("{0} done".format(self.opts.output_file))
         shutil.rmtree(self.tempdir)
-        print("Done removing: {0}".format(self.tempdir))
