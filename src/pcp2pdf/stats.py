@@ -29,6 +29,7 @@ import resource
 import shutil
 import sys
 import tempfile
+import time
 
 from reportlab.platypus.paragraph import Paragraph
 from reportlab.platypus import Image
@@ -386,14 +387,14 @@ class PcpStats(object):
             for indom in data[metric]:
                 timestamps = data[metric][indom][0]
                 last = None
-                for time in timestamps:
+                for timestamp in timestamps:
                     if not last:
-                        last = time
+                        last = timestamp
                         continue
-                    delta = total_seconds(time - last)
+                    delta = total_seconds(timestamp - last)
                     total += delta
                     counter += 1
-                    last = time
+                    last = timestamp
 
         frequency = total / counter
         return frequency
@@ -414,18 +415,18 @@ class PcpStats(object):
             for indom in data[metric]:
                 timestamps = data[metric][indom][0]
                 last = None
-                for time in timestamps:
+                for timestamp in timestamps:
                     if not last:
-                        last = time
+                        last = timestamp
                         continue
-                    delta = total_seconds(time - last)
+                    delta = total_seconds(timestamp - last)
                     if delta > frequency * FREQUENCY_ERROR:
-                        key = (last, time)
+                        key = (last, timestamp)
                         if key not in ret:
                             ret[key] = [(metric, indom)]
                         else:
                             ret[key].append((metric, indom))
-                    last = time
+                    last = timestamp
         return ret
 
     def parse(self):
@@ -434,9 +435,10 @@ class PcpStats(object):
         It returns a dictionary containing the metrics which have been
         rate converted
         '''
-
+        start_time = time.time()
         (all_data, self.skipped_graphs) = self.pcparchive.get_values(progress=parse_progress_callback)
-        sys.stdout.write('\rParsing archive: [########## 100.0%]')
+        tdelta = time.time() - start_time
+        sys.stdout.write('\rParsing archive: [########## 100.0%%] - %.2fs' % tdelta)
         sys.stdout.flush()
         print()
 
@@ -841,8 +843,9 @@ class PcpStats(object):
         table = Table(data, 2 * [3.5 * inch], rows * [0.4 * inch])
         table.setStyle(style)
         self.story.append(table)
-
         self.story.append(PageBreak())
+
+        start_time = time.time()
         done_metrics = []
         global progress_total
         progress_total = len(self.all_graphs)
@@ -868,6 +871,9 @@ class PcpStats(object):
                 graph_progress_callback(self)
                 
 
+        tdelta = time.time() - start_time
+        sys.stdout.write('\rCreating graphs: [########## 100.0%%] - %.2fs' % tdelta)
+        sys.stdout.flush()
         print()
         # Build the string metrics table. It only prints
         # a value if it changed over time
@@ -895,6 +901,7 @@ class PcpStats(object):
         # At this point all images are created let's build the pdf
         print("Building pdf: ", end='')
         sys.stdout.flush()
+        start_time = time.time()
         # Add the graphs to the pdf
         last_category = ''
         for graph in done_metrics:
@@ -912,5 +919,6 @@ class PcpStats(object):
             self.story.append(PageBreak())
 
         self.doc.multiBuild(self.story)
-        print("{0} done".format(self.opts.output_file))
+        tdelta = time.time() - start_time
+        print("{0} - {1:.2f}s".format(self.opts.output_file, tdelta))
         shutil.rmtree(self.tempdir)
