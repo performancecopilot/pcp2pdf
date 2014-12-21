@@ -92,7 +92,9 @@ users could not specify a custom time interval
 
 - Stable block device naming. Currently we either put sda,sdb,... or dm-0, dm-1 in
   the indoms for certain pmdas. As neither is stable, could we try to fix
-  it by using the wwwid when available?
+  it by using the wwwid when available? This likely needs a full sosreport
+  and tackling of the long-standing issue of sosreport not exposing an API
+  to fetch this kind of info.
 
 - Write a custom qa test that creates a pdf with certain metrics (exercising most of the
   options). The test could be running strings on the pdf and see if all the metrics

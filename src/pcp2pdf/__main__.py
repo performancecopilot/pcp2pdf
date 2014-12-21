@@ -189,7 +189,7 @@ def main():
         c_api.pmUsageMessage()
         sys.exit(1)
 
-    print("Parsing files: {0}".format(" ".join(
+    print("Parsing: {0}".format(" ".join(
           map(os.path.basename, pcp_files))), end='')
     print()
 
