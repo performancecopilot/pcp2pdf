@@ -31,6 +31,8 @@ For example:
 
 ![image](docs/pcp2pdf-screenshot-1.png)
 
+Here is a sample pdf [report](http://acksyn.org/software/pcp2pdf/output.pdf)
+
 Caveats
 =======
 
