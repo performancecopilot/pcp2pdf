@@ -7,7 +7,7 @@ What is pcp2pdf for?
 --------------------
 
 The main goal is of :program:`pcp2pdf` is to create a visually pleasing report
-of a `Performance Co-Pilot <http://pcp.io>` archive file. PCP archive files
+of a `Performance Co-Pilot <http://pcp.io>`_ archive file. PCP archive files
 contain a bunch of metrics of a system and are usually created by the 
 :program:`pmlogger` service, which is part of ``Performance Co-Pilot``.
 
@@ -22,6 +22,7 @@ to "Sat Oct 11 01:00", and we would also like to see the following:
 * How the eth0 TX patch behaved in correlation to the TCP statistics
 * How the eth0 RX and TX behaved
 * A label on the graph at 23:00 on Friday when users told us things are "slow"
+* Lower DPI quality (75)
 
 For example::
 
@@ -30,7 +31,7 @@ For example::
         -c "in_out:network.interface.out.bytes:eth0,network.interface.in.bytes:eth0" \
         -l 'slow:2014-10-10 23:00:00' -a pcparchivedir/20141010
 
-Insert screenshot here
+.. image:: pcp2pdf-screenshot-1.png
 
 Caveats
 -------
@@ -48,4 +49,4 @@ both RAM and CPU usage by setting a smaller DPI value in ``pcp2pdf.conf`` or wit
 Bugs
 ----
 
-Feel free to report any issues `here <https://github.com/mbaldessari/pcp2pdf/issues>`
+Feel free to report any issues `here <https://github.com/mbaldessari/pcp2pdf/issues>`_
