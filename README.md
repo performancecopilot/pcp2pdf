@@ -1,7 +1,3 @@
----
-title: 'Welcome to pcp2pdf''s documentation!'
-...
-
 This document is meant to give an introduction to `pcp2pdf`
 
 What is pcp2pdf for?
