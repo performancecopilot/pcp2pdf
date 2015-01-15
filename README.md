@@ -8,6 +8,14 @@ The main goal of pcp2pdf is to create a visually pleasing report of a
 contain a bunch of metrics of a system and are usually created by the
 pmlogger service, which is part of `Performance Co-Pilot`.
 
+Installation
+============
+If you're using Fedora, you can use the packages found [here](http://acksyn.org/files/rpms/pcp2pdf/).
+Otherwise just use the following:
+
+    ./setup.py install
+    pcp2pdf <arguments>
+
 Usage examples
 ==============
 
