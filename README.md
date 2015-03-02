@@ -22,7 +22,7 @@ Installation
 If you're using Fedora, you can use the packages found [here](http://acksyn.org/files/rpms/pcp2pdf/).
 Otherwise just use the following:
 
-    ./setup.py install
+    python3 ./setup.py install
     pcp2pdf --help
 
 Usage examples
