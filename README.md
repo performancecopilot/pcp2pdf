@@ -53,15 +53,13 @@ Here is a sample pdf [report](http://acksyn.org/software/pcp2pdf/output.pdf)
 Caveats
 =======
 
-Except when running with Python versions (\<= 2.6), pcp2pdf will run in
-SMP mode and use all of the available CPUs to generate the graphs. It
-won't do that on older Python stacks, due to a number of issues that
-were encountered on such systems (it will just be a tad slower).
-
 By default pcp2pdf uses a DPI value of 200. While this gives
 high-quality looking graphs it takes quite a bit of memory and CPU time.
 It is possible to reduce both RAM and CPU usage by setting a smaller DPI
 value in `pcp2pdf.conf` or with the `--dpi` switch.
+
+Note that `pcp2pdf` is SMP aware and will use all the CPUs to render
+the graphs.
 
 Bugs
 ====
