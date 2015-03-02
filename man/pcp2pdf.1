@@ -1,0 +1,226 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "PCP2PDF" "1" "March 02, 2015" "0.1" "pcp2pdf"
+.SH NAME
+pcp2pdf \- pcp2pdf Documentation
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH SYNOPSIS
+.sp
+\fBpcp2pdf\fP [\fIoptions\fP] \-a <\fIpcparchive\fP>
+.SH DESCRIPTION
+.sp
+\fBpcp2pdf\fP generates a pdf report from a PCP archive. Per default,
+the report contains a graph plotting each metric and its corresponding frequency
+histogram. By default all the metrics contained in the archive will be plotted.
+In order to limit or augment the plotted metrics in the report, use the
+\fB\-\-include\fP, \fB\-\-exclude\fP or \fB\-\-custom\fP options.
+.sp
+\fBpcp2pdf\fP only operates on PCP archive files and cannot use live data.
+.sp
+\fBpcp2pdf\fP needs a locally running \fBpmcd\fP in order to fetch the
+help text of each metric. Without it running the report won\(aqt have metrics help
+text.
+.SH OPTIONS
+.INDENT 0.0
+.TP
+.BI \-a \ <archivefile>
+Sets the PCP archive name to be parsed
+.TP
+.BI \-i \ <metrics>\fP,\fB \ \-\-include \ <metrics>
+Includes metrics which match the specified regular expression.
+For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-include \(aqnetwork.*\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+will include only metrics starting with \(aqnetwork.\(aq. The option can be specified
+multiple times. If only \fB\-\-include\fP is specified, only the matching metrics will
+be included in the output. If both \fB\-\-include\fP and \fB\-\-exclude\fP are specified,
+first all excluded metrics are evaluted, and then the ones explicitely included.
+.TP
+.BI \-e \ <metrics>\fP,\fB \ \-\-exclude \ <metrics>
+Excludes metrics which match the specified regular expression.
+For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-exclude \(aqproc.*\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+will exclude all metrics starting with \(aqproc.\(aq. The option can be specified
+multiple times. If only \fB\-\-exclude\fP is specified, all metrics are shown except
+the specified ones.
+.TP
+.BI \-c \ <graphs>\fP,\fB \ \-\-custom \ <graphs>
+Add custom graphs with multiple metrics.
+For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-custom \(aqtraffic:network.tcp.outrsts:.*,network.tcp.ofoqueue.*,network.interfaces.out.*:eth[0\-9]\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+will create a \(aqtraffic\(aq page with the each matched metric and the corresponding
+matched indom single graph. The general syntax is the following:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-custom \(aq<label>:<metric1_regex>:<indom1_regex>,...<metricN_regex>:<indomN_regex>\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The option can be specified multiple times. This makes it easy to try and correlate
+metrics that normally would not appear on the same graph. The different metrics\(aq
+values need to be in similar scales or the graph will be not too useful.
+.TP
+.BI \-o \ <filename>\fP,\fB \ \-\-output \ <filename>
+Output file name (default: output.pdf)
+.TP
+.B \-r\fP,\fB  \-\-raw
+Disable rate conversion
+Disables the rateconversion for all the metrics that have the \fBPM_SEM_COUNTER\fP
+semantic associated with them. By default those are converted via the following
+formula
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+(value(T) \- value(T\-1)) / (T \- T\-1)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+By setting this option the aforementioned conversion will \fInot\fP take place.
+.TP
+.BI \-l \ <labels>\fP,\fB \ \-\-label \ <labels>
+Adds one or more labels to a graph at specified time
+For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-label \(aqfoo:2014\-01\-01 13:45:03\(aq \-\-label \(aqbar:2014\-01\-02 13:15:15\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+will add two extra labels on every graph at those times.  This is usually
+useful for correlation analysis. The time format is specified in the
+\fIPCPIntro(1)\fP man page.
+.TP
+.BI \-S \ <time>\fP,\fB \ \-\-start \ <time>
+Sets the start of the time for the analysis
+See \fIPCPIntro(1)\fP for the accepted time formats. For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-start "Fri Oct 10 22:10:12.362 2014"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.TP
+.BI \-T \ <time>\fP,\fB \ \-\-finish \ <time>
+Sets the end of the time window
+See \fIPCPIntro(1)\fP for the accepted time formats. For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-finish "Sat Oct 11 01:00:00.00 2014"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.TP
+.BI \-t \ <interval>\fP,\fB \ \-\-interval \ <interval>
+Sets the sampling interval
+See \fIPCPIntro(1)\fP for the accepted interval formats. For example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-interval "14 minute"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.TP
+.B \-n\fP,\fB  \-\-nohistogram
+Disable the frequency histogram graphs (enabled by default)
+.TP
+.B \-V\fP,\fB  \-\-version
+Display version number and exit
+.TP
+.B \-\-help
+Show the usage message and exit
+.UNINDENT
+.SH SEE ALSO
+.sp
+\fIPCPIntro(1)\fP
+\fIpmcd(1)\fP
+.SH HOMEPAGE
+.sp
+\fIHomepage <http://github.com/performancecopilot/pcp2pdf\fP
+\fIReporting issues <http://github.com/performancecopilot/pcp2pdf/issues>\fP
+.SH AUTHOR
+Michele Baldessari
+.SH COPYRIGHT
+2014, Michele Baldessari
+.\" Generated by docutils manpage writer.
+.
