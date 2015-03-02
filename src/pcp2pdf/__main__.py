@@ -31,15 +31,6 @@ import pcp2pdf.stats
 
 NAME = "pcp2pdf"
 
-# Using multiprocess with matplotlib seems to be problematic
-# on RHEL 5 and 6. For now we simply do not run multiple processes
-# in that case
-def run_threaded():
-    info = sys.version_info
-    if info[0] == 2 and info[1] <= 6:
-        return False
-    return True
-
 class _Options(object):
     def __init__(self):
         self.input_file = ""
