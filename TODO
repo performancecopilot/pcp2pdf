@@ -1,5 +1,3 @@
-- With the python3 move we can kill total_seconds() and run_threaded()
-
 - disk.all.avactive help text talks about:
   When converted to a rate, this metric represents the average utilization of all disks during
   the sampling interval. A value of 0.25 (or 25%) means that on average every disk was active (i.e. busy) one

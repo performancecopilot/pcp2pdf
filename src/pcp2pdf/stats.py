@@ -130,13 +130,6 @@ def match_res(patterns, string, flags=0):
             return ret
     return None
 
-
-# Python 2.6 does not have total_seconds() in datetime objects
-def total_seconds(timedelta):
-    return (timedelta.days * 3600 * 24 + timedelta.seconds +
-           timedelta.microseconds / 100000.0)
-
-
 class PcpStats(object):
     story = []
 
@@ -316,7 +309,7 @@ class PcpStats(object):
             new_timestamps.append(delta)
 
         for v in range(1, len(values)):
-            seconds = total_seconds(new_timestamps[v - 1])
+            seconds = new_timestamps[v - 1].total_seconds()
             try:
                 delta = (values[v] - values[v - 1]) / seconds
             except ZeroDivisionError:
@@ -393,7 +386,7 @@ class PcpStats(object):
                     if not last:
                         last = timestamp
                         continue
-                    delta = total_seconds(timestamp - last)
+                    delta = (timestamp - last).total_seconds()
                     total += delta
                     counter += 1
                     last = timestamp
@@ -421,7 +414,7 @@ class PcpStats(object):
                     if not last:
                         last = timestamp
                         continue
-                    delta = total_seconds(timestamp - last)
+                    delta = (timestamp - last).total_seconds()
                     if delta > frequency * FREQUENCY_ERROR:
                         key = (last, timestamp)
                         if key not in ret:

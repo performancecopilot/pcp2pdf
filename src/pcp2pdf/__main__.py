@@ -46,10 +46,6 @@ class _Options(object):
         self.dpi = None
         self.histogram = True
         self.opts = self.setup()
-        self.threaded = run_threaded()
-        if not self.threaded:
-            print("Old python version detected. Disabling multi-threaded"
-                  " processing")
         configfiles = []
         path = os.path.join(pmapi.pmContext.pmGetConfig('PCP_SYSCONF_DIR'),
                             NAME, NAME + ".conf")
