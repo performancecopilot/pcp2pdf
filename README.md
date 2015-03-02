@@ -1,4 +1,4 @@
-This document is meant to give an introduction to `pcp2pdf`
+This document gives an introduction to `pcp2pdf`
 
 What is pcp2pdf for?
 ====================
@@ -8,13 +8,22 @@ The main goal of pcp2pdf is to create a visually pleasing report of a
 contain a bunch of metrics of a system and are usually created by the
 pmlogger service, which is part of `Performance Co-Pilot`.
 
+Prerequisites
+=============
+
+pcp2pdf is a python program and makes use of these 3rd party modules:
+
+-   [matplotlib](http://matplotlib.org/users/installing.html)
+-   [reportlab](http://www.reportlab.com/opensource/)
+
 Installation
 ============
+
 If you're using Fedora, you can use the packages found [here](http://acksyn.org/files/rpms/pcp2pdf/).
 Otherwise just use the following:
 
     ./setup.py install
-    pcp2pdf <arguments>
+    pcp2pdf --help
 
 Usage examples
 ==============
@@ -58,4 +67,4 @@ Bugs
 ====
 
 Feel free to report any issues
-[here](https://github.com/mbaldessari/pcp2pdf/issues)
+[here](https://github.com/performancecopilot/pcp2pdf/issues)

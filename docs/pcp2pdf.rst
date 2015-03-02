@@ -106,6 +106,6 @@ See also
 Homepage
 --------
 
-`Homepage <http://github.com/mbaldessari/pcp2pdf>`
-`Reporting issues <http://github.com/mbaldessari/pcp2pdf/issues>`
+`Homepage <http://github.com/performancecopilot/pcp2pdf`
+`Reporting issues <http://github.com/performancecopilot/pcp2pdf/issues>`
 
