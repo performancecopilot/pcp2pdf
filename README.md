@@ -22,8 +22,8 @@ Installation
 If you're using Fedora, you can use the packages found [mbaldessari/pcp2pdf](https://copr.fedoraproject.org/coprs/mbaldessari/pcp2pdf/)
 COPR repo. Just launch:
 
-   dnf copr enable mbaldessari/pcp2pdf
-   dnf install pcp2pdf
+    dnf copr enable mbaldessari/pcp2pdf
+    dnf install pcp2pdf
 
 Otherwise just use the following:
 
