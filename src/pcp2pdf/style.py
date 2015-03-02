@@ -43,7 +43,7 @@ class PcpDocTemplate(BaseDocTemplate):
             ('RIGHTPADDING', (0, 0), (-1, -1), int(cfgparser.get("string_table", "rightPadding"))),
             ('FONTSIZE', (0, 0), (-1, -1), int(cfgparser.get("string_table", "fontSize"))),
             ('FONTNAME', (0, 0), (-1, 0), cfgparser.get("string_table", "font")), ]
-        apply(BaseDocTemplate.__init__, (self, filename), kw)
+        BaseDocTemplate.__init__(self, filename, **kw)
         template = PageTemplate('normal', [Frame(
             float(cfgparser.get("page", "x1")) * inch,
             float(cfgparser.get("page", "y1")) * inch,

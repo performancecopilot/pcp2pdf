@@ -16,8 +16,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-from __future__ import print_function
-from __future__ import division
 import bisect
 import datetime
 import hashlib
@@ -99,16 +97,21 @@ def split_chunks(list_to_split, chunksize):
     return ret
 
 
-def graph_wrapper((pcparch_obj, data)):
-    """Wrapper due to pool.map() single argument limit."""
+def graph_wrapper(zip_obj):
+    """Wrapper due to pool.map() single argument limit.
+    zip_obj = zip(itertools.repeat(self), self.all_graphs)
+    where self is a PcpStats object. Each CPU will get
+    a slice of the self.all_graphs list
+    """
+    (pcpstats_obj, data) = list(zip_obj)
     (label, fname, metrics, text, indomres, histogram) = data
     if histogram:
-        ret = pcparch_obj.create_histogram(fname, label, metrics, indomres)
+        ret = pcpstats_obj.create_histogram(fname, label, metrics, indomres)
     else:
-        ret = pcparch_obj.create_graph(fname, label, metrics, indomres)
+        ret = pcpstats_obj.create_graph(fname, label, metrics, indomres)
     with progress_lock:
         progress_counter.value += 1
-    graph_progress_callback(pcparch_obj)
+    graph_progress_callback(pcpstats_obj)
     return ((label, fname, metrics, text, indomres, histogram), ret)
 
 
@@ -144,7 +147,7 @@ class PcpStats(object):
         self.doc = PcpDocTemplate(opts.output_file, self.configparser, pagesize=landscape(A4))
         self.pcphelp = PcpHelp()
         self.pcparchive = PcpArchive(args, opts)
-        if self.opts.dpi > 0:
+        if self.opts.dpi is not None and self.opts.dpi > 0:
             self.DPI = self.opts.dpi
         else:
             self.DPI = self.configparser.getint('main', 'dpi')
@@ -290,11 +293,10 @@ class PcpStats(object):
         if isinstance(text, list):
             text = "_".join(text)
         # create bookmarkname
-        bn = hashlib.sha1(text + sty.name).hexdigest()
+        bn = hashlib.sha1(text.encode('utf-8') + sty.name.encode('utf-8')).hexdigest()
         # modify paragraph text to include an anchor point with name bn
+        # store the bookmark name on the flowable so afterFlowable can see this
         h = Paragraph(text + '<a name="%s"/>' % bn, sty)
-        # store the bookmark name on the flowable so afterFlowable can see
-        # this
         h._bookmarkName = bn
         self.story.append(h)
 
@@ -849,14 +851,13 @@ class PcpStats(object):
         done_metrics = []
         global progress_total
         progress_total = len(self.all_graphs)
-        # This list contains the metrics that contained data
-        if self.opts.threaded:
+        if True:
             pool = multiprocessing.Pool(None)
             l = zip(itertools.repeat(self), self.all_graphs)
             metrics_rets = pool.map(graph_wrapper, l)
             (metrics, rets) = zip(*metrics_rets)
             done_metrics = [metric for (metric, ret) in metrics_rets if ret]
-        else:
+        else: # This is just to debug in non multi-threaded mode
             for graph in self.all_graphs:
                 (label, fname, metrics, text, indomres, histogram) = graph
                 if histogram:

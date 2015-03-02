@@ -16,7 +16,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-from __future__ import print_function
 import datetime
 import sys
 
@@ -40,7 +39,8 @@ class PcpHelp(object):
 
     def _pmns_callback(self, label):
         '''Callback for the PMNS tree walk.'''
-        self.pmns[label] = None
+        newlabel = label.decode("utf-8")
+        self.pmns[newlabel] = None
 
     def __init__(self):
         try:
@@ -88,9 +88,10 @@ class PcpArchive(object):
 
     def _pmns_callback(self, label):
         '''Callback to walk the PMNS tree and populate self.pmns dictionary.'''
+        newlabel = label.decode("utf-8")
         pmid = self.ctx.pmLookupName(label)
         desc = self.ctx.pmLookupDesc(pmid[0])
-        self.pmns[label] = (desc.type, desc.sem, desc.contents.units,
+        self.pmns[newlabel] = (desc.type, desc.sem, desc.contents.units,
                             desc.contents.type,
                             self.ctx.pmUnitsStr(desc.contents.units),
                             self.ctx.pmTypeStr(desc.contents.type))
@@ -130,7 +131,7 @@ class PcpArchive(object):
 
     def get_metrics(self):
         '''Returns a list of all the metric labels of the archive.'''
-        return self.pmns.keys()
+        return list(self.pmns.keys())
 
     def get_metric_info(self, metric):
         '''Given a metric label, return (type, sem, units).'''
@@ -172,7 +173,6 @@ class PcpArchive(object):
         # indom_map is just used as an optimization. The keys are (numpmid,
         # numinst) and the value is the indom name. This avoids too many
         # expensive calls to pmNameInDomArchive.
-        # FIXME: is this guaranteed to never brake?
         indom_map = {}
         metrics = self.get_metrics()
         pmids = self.get_pmids(metrics)
@@ -209,7 +209,7 @@ class PcpArchive(object):
                 if metric not in data:
                     data[metric] = {}
                 count = result.contents.get_numval(i)
-                if count == 0:  # No instance whatsover
+                if count == 0:  # No instance whatsoever
                     continue
                 elif count == 1:  # No indoms are present
                     try:

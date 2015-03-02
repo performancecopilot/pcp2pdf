@@ -19,7 +19,7 @@
 
 from __future__ import print_function
 
-import ConfigParser
+import configparser
 import datetime
 import os
 import os.path
@@ -39,7 +39,6 @@ def run_threaded():
     if info[0] == 2 and info[1] <= 6:
         return False
     return True
-
 
 class _Options(object):
     def __init__(self):
@@ -67,7 +66,7 @@ class _Options(object):
         configfiles.append(path)
         path = os.path.join(os.getcwd(), "src", NAME + ".conf")
         configfiles.append(path)
-        self.configparser = ConfigParser.SafeConfigParser()
+        self.configparser = configparser.SafeConfigParser()
         # Make sure the items are not lower-cased
         self.configparser.optionxform = str
         ret = self.configparser.read(configfiles)

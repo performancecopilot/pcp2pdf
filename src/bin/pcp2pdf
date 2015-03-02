@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # pcp2pdf - a script to interact with the Fedora Packaging system
 #
 # Copyright (C) 2014 Michele Baldessari
