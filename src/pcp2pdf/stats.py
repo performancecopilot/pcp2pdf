@@ -248,7 +248,7 @@ class PcpStats(object):
                     errors.append(pattern)
                     pass
 
-            if len(errors) > 0:
+            if errors:
                 print("Invalid regular expressions: {0}".format(
                     " ".join(errors)))
                 sys.exit(-1)
@@ -451,7 +451,7 @@ class PcpStats(object):
                 if not all([v == 0 for v in value[1]]):
                     tmp[key] = value
 
-            if len(tmp) > 0:
+            if tmp:
                 self.all_data[metric] = tmp
 
         if self.opts.raw:  # User explicitely asked to not rate convert any metrics
@@ -697,7 +697,7 @@ class PcpStats(object):
 
         # Show any data collection gaps in the graph
         gaps = self.find_data_gaps(self.all_data).keys()
-        if len(gaps) > 0:
+        if gaps:
             for i in gaps:
                 (g1, g2) = i
                 x1 = mdates.date2num(g1)
@@ -707,7 +707,7 @@ class PcpStats(object):
                                facecolor="lightgrey"))
 
         # Draw self.labels if non empty
-        if len(self.opts.labels) > 0:
+        if self.opts.labels:
             for label in self.opts.labels:
                 max_value = self.find_max(self.opts.labels[label], metrics)
                 # should we not find a max_value at all (due to empty timestamps)
@@ -766,7 +766,7 @@ class PcpStats(object):
                 if metric in self.all_data:
                     custom_metrics.append(metric)
 
-            if len(custom_metrics) == 0:
+            if not custom_metrics:
                 break
 
             if isinstance(metrics, str) and metrics in self.pcphelp.help_text:
@@ -808,7 +808,7 @@ class PcpStats(object):
         # FIXME: Split this function in smaller pieces. This is unreadable
         self.rate_converted = self.parse()
         (self.all_graphs, string_metrics) = self.get_all_graphs()
-        if len(self.all_graphs) == 0:
+        if self.all_graphs:
             print('No usable non-zero graphs found.')
             sys.exit(0)
 

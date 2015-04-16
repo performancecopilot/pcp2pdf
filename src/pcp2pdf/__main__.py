@@ -57,7 +57,7 @@ class _Options(object):
         # Make sure the items are not lower-cased
         self.configparser.optionxform = str
         ret = self.configparser.read(configfiles)
-        if len(ret) == 0:
+        if not ret:
             print("No configuration files found: {0}".format(configfiles))
             sys.exit(-1)
 
