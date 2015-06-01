@@ -808,7 +808,7 @@ class PcpStats(object):
         # FIXME: Split this function in smaller pieces. This is unreadable
         self.rate_converted = self.parse()
         (self.all_graphs, string_metrics) = self.get_all_graphs()
-        if self.all_graphs:
+        if not self.all_graphs:
             print('No usable non-zero graphs found.')
             sys.exit(0)
 
