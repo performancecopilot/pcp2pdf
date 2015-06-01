@@ -39,7 +39,11 @@ class PcpHelp(object):
 
     def _pmns_callback(self, label):
         '''Callback for the PMNS tree walk.'''
-        newlabel = label.decode("utf-8")
+        try:
+            newlabel = label.decode("utf-8")
+        except AttributeError:
+            newlabel = label
+
         self.pmns[newlabel] = None
 
     def __init__(self):
@@ -88,7 +92,10 @@ class PcpArchive(object):
 
     def _pmns_callback(self, label):
         '''Callback to walk the PMNS tree and populate self.pmns dictionary.'''
-        newlabel = label.decode("utf-8")
+        try:
+            newlabel = label.decode("utf-8")
+        except AttributeError:
+            newlabel = label
         pmid = self.ctx.pmLookupName(label)
         desc = self.ctx.pmLookupDesc(pmid[0])
         self.pmns[newlabel] = (desc.type, desc.sem, desc.contents.units,
