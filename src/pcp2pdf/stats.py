@@ -499,9 +499,10 @@ class PcpStats(object):
         isstring = False
         for indom in data:
             values = data[indom][1]
-            if all([isinstance(v, str) for v in values]):
+            if all([isinstance(v, bytes) for v in values]):
                 isstring = True
                 break
+
         return isstring
 
     def get_colormap(self, metrics, indomres):
@@ -844,6 +845,7 @@ class PcpStats(object):
         done_metrics = []
         global progress_total
         progress_total = len(self.all_graphs)
+        # Set this to False to disable multiprocessing
         if True:
             pool = multiprocessing.Pool(None)
             l = zip(itertools.repeat(self), self.all_graphs)
