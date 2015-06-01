@@ -62,7 +62,7 @@ if 'sdist' in sys.argv:
 
 config = {
     'name': 'pcp2pdf',
-    'version': '0.2',
+    'version': '0.3',
     'author': 'Michele Baldessari',
     'author_email': 'michele@acksyn.org',
     'url': 'https://github.com/performancecopilot/pcp2pdf',
