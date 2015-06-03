@@ -104,15 +104,15 @@ def graph_wrapper(zip_obj):
     a slice of the self.all_graphs list
     """
     (pcpstats_obj, data) = list(zip_obj)
-    (label, fname, metrics, text, indomres, histogram) = data
+    (label, fname, metrics, text, indom_regexes, histogram) = data
     if histogram:
-        ret = pcpstats_obj.create_histogram(fname, label, metrics, indomres)
+        ret = pcpstats_obj.create_histogram(fname, label, metrics, indom_regexes)
     else:
-        ret = pcpstats_obj.create_graph(fname, label, metrics, indomres)
+        ret = pcpstats_obj.create_graph(fname, label, metrics, indom_regexes)
     with progress_lock:
         progress_counter.value += 1
     graph_progress_callback(pcpstats_obj)
-    return ((label, fname, metrics, text, indomres, histogram), ret)
+    return ((label, fname, metrics, text, indom_regexes, histogram), ret)
 
 
 def print_mem_usage(data):
@@ -218,7 +218,7 @@ class PcpStats(object):
                 sys.exit(-1)
 
             all_metrics = sorted(self.pcparchive.get_metrics())
-            indomres = {}
+            indom_regexes = {}
             metrics = []
             for element in elements:
                 try:
@@ -234,14 +234,14 @@ class PcpStats(object):
                     print("Failed to parse: {0}".format(metric_str))
                     sys.exit(-1)
                 for metric in tmp_metrics:
-                    if metric in indomres:
-                        indomres[metric].append(indom_str)
+                    if metric in indom_regexes:
+                        indom_regexes[metric].append(indom_str)
                     else:
-                        indomres[metric] = [indom_str]
+                        indom_regexes[metric] = [indom_str]
 
             # Try to compile the indom_res to make sure they are valid
             errors = []
-            for pattern in indomres:
+            for pattern in indom_regexes:
                 try:
                     re.compile(pattern)
                 except Exception:
@@ -256,7 +256,7 @@ class PcpStats(object):
             # We expanded all the metrics here. We cannot do the same for
             # indoms as those are not yet available. We just pass the regexes
             # and do it at custom graph creation time
-            self.custom_graphs.append(("Custom.%s" % label, metrics, indomres))
+            self.custom_graphs.append(("Custom.%s" % label, metrics, indom_regexes))
 
         try:  # Not all matplotlib versions have this key
             matplotlib.rcParams['figure.max_open_warning'] = 100
@@ -505,7 +505,7 @@ class PcpStats(object):
 
         return isstring
 
-    def get_colormap(self, metrics, indomres):
+    def get_colormap(self, metrics, indom_regexes):
         '''Return the colormap used to plot the different graphs'''
         # First we calculate the maximum number of colors needed
         max_values_len = 0
@@ -513,8 +513,8 @@ class PcpStats(object):
             values = self.all_data[metric]
             count = 0
             for indom in values:
-                if indomres is not None and metric in indomres:
-                    if match_res(indomres[metric], indom) is None:
+                if indom_regexes is not None and metric in indom_regexes:
+                    if match_res(indom_regexes[metric], indom) is None:
                         continue
                 count += 1
             if count > max_values_len:
@@ -527,7 +527,7 @@ class PcpStats(object):
                                        cmap=plt.get_cmap('Set1'))
         return scalar_map
 
-    def create_histogram(self, fname, title, metrics, indomres):
+    def create_histogram(self, fname, title, metrics, indom_regexes):
         '''Creates a histogram image
 
         Take a filename, a title, a list of metrics and an indom_regex to
@@ -549,16 +549,16 @@ class PcpStats(object):
         found = False
         indoms = 0
         counter = 0
-        scalar_map = self.get_colormap(metrics, indomres)
+        scalar_map = self.get_colormap(metrics, indom_regexes)
 
         # Then we walk the metrics and plot
         for metric in metrics:
             values = self.all_data[metric]
             for indom in sorted(values):
-                # If the indomres is not None we use the indom only if the re string
+                # If the indom_regexes is not None we use the indom only if the re string
                 # matches
-                if indomres is not None and metric in indomres:
-                    if match_res(indomres[metric], indom) is None:
+                if indom_regexes is not None and metric in indom_regexes:
+                    if match_res(indom_regexes[metric], indom) is None:
                         continue
                 (timestamps, dataset) = values[indom]
                 # Currently if there is only one (timestamp,value) like with filesys.blocksize
@@ -621,7 +621,7 @@ class PcpStats(object):
         plt.close('all')
         return True
 
-    def create_graph(self, fname, title, metrics, indomres):
+    def create_graph(self, fname, title, metrics, indom_regexes):
         '''Creates a graph image
 
         Take a filename, a title, a list of metrics and an indom_regex to
@@ -648,16 +648,16 @@ class PcpStats(object):
         found = False
         indoms = 0
         counter = 0
-        scalar_map = self.get_colormap(metrics, indomres)
+        scalar_map = self.get_colormap(metrics, indom_regexes)
 
         # Then we walk the metrics and plot
         for metric in metrics:
             values = self.all_data[metric]
             for indom in sorted(values):
-                # If the indomres is not None we use the indom only if the re string
+                # If the indom_regexes is not None we use the indom only if the re string
                 # matches
-                if indomres is not None and metric in indomres:
-                    if match_res(indomres[metric], indom) is None:
+                if indom_regexes is not None and metric in indom_regexes:
+                    if match_res(indom_regexes[metric], indom) is None:
                         continue
                 (timestamps, dataset) = values[indom]
                 # Currently if there is only one (timestamp,value) like with filesys.blocksize
@@ -854,13 +854,13 @@ class PcpStats(object):
             done_metrics = [metric for (metric, ret) in metrics_rets if ret]
         else: # This is just to debug in non multi-threaded mode
             for graph in self.all_graphs:
-                (label, fname, metrics, text, indomres, histogram) = graph
+                (label, fname, metrics, text, indom_regexes, histogram) = graph
                 if histogram:
-                    if self.create_histogram(fname, label, metrics, indomres):
+                    if self.create_histogram(fname, label, metrics, indom_regexes):
                         done_metrics.append(graph)
                     progress_counter.value += 1
                 else:
-                    if self.create_graph(fname, label, metrics, indomres):
+                    if self.create_graph(fname, label, metrics, indom_regexes):
                         done_metrics.append(graph)
                     progress_counter.value += 1
                 
