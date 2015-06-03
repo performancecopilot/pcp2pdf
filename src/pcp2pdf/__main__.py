@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # pcp2pdf - pcp(1) report graphing utility
 # Copyright (C) 2014  Michele Baldessari
 #
