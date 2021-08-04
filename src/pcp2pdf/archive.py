@@ -100,7 +100,12 @@ class PcpArchive(object):
         except AttributeError:
             newlabel = label
         pmid = self.ctx.pmLookupName(label)
-        desc = self.ctx.pmLookupDesc(pmid[0])
+        try:
+            desc = self.ctx.pmLookupDesc(pmid[0])
+        except pmapi.pmErr:
+            print("Unable to get description for: {0} [{1}] -> Skipping".format(label, pmid[0]))
+            return
+
         self.pmns[newlabel] = (desc.type, desc.sem, desc.contents.units,
                             desc.contents.type,
                             self.ctx.pmUnitsStr(desc.contents.units),
