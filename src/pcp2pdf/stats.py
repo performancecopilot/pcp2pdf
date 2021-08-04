@@ -869,9 +869,9 @@ class PcpStats(object):
                     if self.create_graph(fname, label, metrics, indom_regexes):
                         done_metrics.append(graph)
                     progress_counter.value += 1
-                
+
                 graph_progress_callback(self)
-                
+
 
         tdelta = time.time() - start_time
         sys.stdout.write('\rCreating graphs: [########## 100.0%%] - %.2fs' % tdelta)
