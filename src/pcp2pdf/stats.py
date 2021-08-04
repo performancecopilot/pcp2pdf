@@ -823,7 +823,8 @@ class PcpStats(object):
         self._do_heading('Report', self.doc.fonts["heading1_invisible"])
         self.story.append(Paragraph('%s' % hostname, self.doc.fonts["front_title"]))
         self.story.append(Spacer(1, 1.5 * inch))
-        self.story.append(Image(self.logo))
+        if os.path.isfile(self.logo):
+            self.story.append(Image(self.logo))
         self.story.append(Spacer(1, 0.5 * inch))
 
         data = [['PCP Archive', '%s' % (" ".join(self.args))],
