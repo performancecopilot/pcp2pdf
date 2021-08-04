@@ -653,45 +653,50 @@ class PcpStats(object):
         # Then we walk the metrics and plot
         for metric in metrics:
             values = self.all_data[metric]
-            for indom in sorted(values):
-                # If the indom_regexes is not None we use the indom only if the re string
-                # matches
-                if indom_regexes is not None and metric in indom_regexes:
-                    if match_res(indom_regexes[metric], indom) is None:
+            try:
+                for indom in sorted(values):
+                    # If the indom_regexes is not None we use the indom only if the re string
+                    # matches
+                    if indom_regexes is not None and metric in indom_regexes:
+                        if match_res(indom_regexes[metric], indom) is None:
+                            continue
+                    (timestamps, dataset) = values[indom]
+                    # Currently if there is only one (timestamp,value) like with filesys.blocksize
+                    # we just do not graph the thing
+                    if len(timestamps) <= 1:
                         continue
-                (timestamps, dataset) = values[indom]
-                # Currently if there is only one (timestamp,value) like with filesys.blocksize
-                # we just do not graph the thing
-                if len(timestamps) <= 1:
-                    continue
 
-                if len(metrics) > 1:
-                    if indom == 0:
-                        lbl = metric
+                    if len(metrics) > 1:
+                        if indom == 0:
+                            lbl = metric
+                        else:
+                            lbl = "%s %s" % (metric, indom)
                     else:
-                        lbl = "%s %s" % (metric, indom)
-                else:
-                    if indom == 0:
-                        lbl = title
-                    else:
-                        lbl = indom
+                        if indom == 0:
+                            lbl = title
+                        else:
+                            lbl = indom
 
-                lbl = ellipsize(lbl, 30)
-                found = True
-                try:
-                    axes.plot(timestamps, dataset, 'o:', label=lbl,
-                              color=scalar_map.to_rgba(counter))
-                except Exception:
-                    import traceback
-                    print("Metric: {0}".format(metric))
-                    print(traceback.format_exc())
-                    sys.exit(-1)
+                    lbl = ellipsize(lbl, 30)
+                    found = True
+                    try:
+                        axes.plot(timestamps, dataset, 'o:', label=lbl,
+                                  color=scalar_map.to_rgba(counter))
+                    except Exception:
+                        import traceback
+                        print("Metric: {0}".format(metric))
+                        print(traceback.format_exc())
+                        sys.exit(-1)
 
-                # Have the Y axis always start from 0
-                axes.set_ylim(ymin=0)
+                    # Have the Y axis always start from 0
+                    axes.set_ylim(ymin=0)
 
-                indoms += 1
-                counter += 1
+                    indoms += 1
+                    counter += 1
+            except TypeError:
+                print('Error fetching indom {0}, title: {1}, metric: {2}, values: {3}'.format(fname, title, metric, values))
+                print('Consider excluding this metric')
+                raise
 
         if not found:
             return False
