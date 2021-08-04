@@ -94,7 +94,7 @@ class _Options(object):
         opts.pmSetLongOption("raw", 0, 'r', '', "Disable rate conversions")
         opts.pmSetLongOptionText(t + "Disable the rate conversion for all the metrics that have the PM_SEM_COUNTER semantic")
         opts.pmSetLongOptionText(t + "associated with them. By default those are converted via: (value(T) - value(T-1)) / (T - T-1)")
-        opts.pmSetLongOption("label", 0, 'l', '', "Adds one or more labels to a graph at specified time")
+        opts.pmSetLongOption("label", 1, 'l', '', "Adds one or more labels to a graph at specified time")
         opts.pmSetLongOptionText(t + "For example --label 'foo:2014-01-01 13:45:03' --label 'bar:2014-01-02 13:15:15' will add")
         opts.pmSetLongOptionText(t + "two extra labels on every graph at those times. This is useful for correlation work")
         opts.pmSetLongOption("nohistogram", 0, 'n', '', "Disables the creation of distribution histograms for each graph")
@@ -150,8 +150,8 @@ class _Options(object):
                 time_str = "".join(optarg.split(':')[1:])
                 time = datetime.datetime.strptime(time_str, "%Y-%m-%d %H%M%S")
                 self.labels[label] = time
-            except Exception:
-                print("Error parsing label: {0}".format(optarg))
+            except Exception as e:
+                print("Error parsing label: {0} -> {1}".format(optarg, e))
                 sys.exit(1)
         elif opt == "a":
             self.input_file = optarg
