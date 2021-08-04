@@ -251,8 +251,11 @@ class PcpArchive(object):
                             skipped_metrics.append(metric)
                             continue
                     if (i, j) not in indom_map:
-                        indom = self.ctx.pmNameInDomArchive(desc, inst)
-                        indom_map[(i, j)] = indom
+                        try:
+                            indom = self.ctx.pmNameInDomArchive(desc, inst)
+                            indom_map[(i, j)] = indom
+                        except pmapi.pmErr:
+                            print("Error in pmNameInDomArchive %s -> %s" % (desc, inst))
                     else:
                         indom = indom_map[(i, j)]
                     if indom not in data[metric]:
