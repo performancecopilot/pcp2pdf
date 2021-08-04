@@ -343,7 +343,7 @@ class PcpStats(object):
         of metrics, find the maximum y value. If the given timestamp does not
         exist in the data we do a linear interpolation.
         '''
-        max_value = -sys.maxint
+        max_value = -sys.maxsize
         for metric in metrics:
             for indom in self.all_data[metric]:
                 timestamps = self.all_data[metric][indom][0]
@@ -717,7 +717,7 @@ class PcpStats(object):
             for label in self.opts.labels:
                 max_value = self.find_max(self.opts.labels[label], metrics)
                 # should we not find a max_value at all (due to empty timestamps)
-                if max_value == -sys.maxint:
+                if max_value == -sys.maxsize:
                     max_value = 0
                 axes.annotate(label, xy=(mdates.date2num(self.opts.labels[label]), max_value),
                               xycoords='data', xytext=(30, 30), textcoords='offset points',
