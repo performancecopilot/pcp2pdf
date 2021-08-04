@@ -70,7 +70,7 @@ def ellipsize(text, limit=20):
     limit = limit - 2  # '..'
     a = int(limit / 2)
     b = int(limit / 2 + (limit % 2))
-    ret = text[:a] + '..' + text[len(text) - b:]
+    ret = str(text[:a]) + '..' + str(text[len(text) - b:])
     return ret
 
 
