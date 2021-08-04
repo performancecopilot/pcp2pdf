@@ -52,7 +52,7 @@ class _Options(object):
         configfiles.append(path)
         path = os.path.join(os.getcwd(), "src", NAME + ".conf")
         configfiles.append(path)
-        self.configparser = configparser.SafeConfigParser()
+        self.configparser = configparser.ConfigParser()
         # Make sure the items are not lower-cased
         self.configparser.optionxform = str
         ret = self.configparser.read(configfiles)
