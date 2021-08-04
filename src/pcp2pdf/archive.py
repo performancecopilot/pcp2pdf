@@ -73,6 +73,7 @@ class PcpArchive(object):
     result = None
     # keys is the metric string. Value is (type, sem, units)
     pmns = {}
+    skipped = []
 
     def __init__(self, pcp_fname, opts):
         '''Opens a PCP archive and does an initial walk of the PMNS tree.'''
@@ -84,6 +85,8 @@ class PcpArchive(object):
             sys.exit(-1)
 
         self.ctx.pmTraversePMNS('', self._pmns_callback)
+        if self.skipped:
+            print("Unable to get description for: {0}".format(", ".join(self.skipped)))
         self.start = opts.opts.pmGetOptionStart()
         self.end = opts.opts.pmGetOptionFinish()
         self.interval = opts.opts.pmGetOptionInterval()
@@ -103,7 +106,7 @@ class PcpArchive(object):
         try:
             desc = self.ctx.pmLookupDesc(pmid[0])
         except pmapi.pmErr:
-            print("Unable to get description for: {0} [{1}] -> Skipping".format(label, pmid[0]))
+            self.skipped.append(label)
             return
 
         self.pmns[newlabel] = (desc.type, desc.sem, desc.contents.units,
