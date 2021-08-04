@@ -853,7 +853,7 @@ class PcpStats(object):
         progress_total = len(self.all_graphs)
         # Set this to False to disable multiprocessing
         if True:
-            pool = multiprocessing.Pool(None)
+            pool = multiprocessing.Pool(self.opts.max_cpus)
             l = zip(itertools.repeat(self), self.all_graphs)
             metrics_rets = pool.map(graph_wrapper, l)
             (metrics, rets) = zip(*metrics_rets)

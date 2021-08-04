@@ -44,6 +44,8 @@ class _Options(object):
         self.labels = {}
         self.dpi = None
         self.histogram = False
+        # max nr of CPUs to use. None == All available CPUs
+        self.max_cpus = None
         self.opts = self.setup()
         configfiles = []
         path = os.path.join(pmapi.pmContext.pmGetConfig('PCP_SYSCONF_DIR'),
@@ -101,6 +103,7 @@ class _Options(object):
         opts.pmSetLongOption("dpi", 1, 'd', '', "Sets the DPI used to create the images for the graph. Default is 200")
         opts.pmSetLongOptionText(t + "unless overridden in the configuration. The lower the value, the less memory the process will need")
         opts.pmSetLongOptionText(t + "and the less quality the graphs will have.")
+        opts.pmSetLongOption("cpus", 1, 'm', '', "Maximum nr of CPUs to use when rendering (default: all available CPUs)")
         opts.pmSetLongOptionStart()
         opts.pmSetLongOptionFinish()
         opts.pmSetLongOptionInterval()
@@ -135,6 +138,11 @@ class _Options(object):
                 sys.exit(1)
         elif opt == "t":
             self.interval = optarg
+        elif opt == "m":
+            if int(optarg) == 0:
+                self.max_cpus = None
+            else:
+                self.max_cpus = int(optarg)
         elif opt == "e":
             self.exclude.append(optarg)
         elif opt == "c":
