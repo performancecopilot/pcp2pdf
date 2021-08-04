@@ -58,7 +58,10 @@ class PcpHelp(object):
                 pmid = self.ctx.pmLookupName(metric)
                 text = self.ctx.pmLookupText(pmid[0],
                                              kind=c_api.PM_TEXT_HELP)
-                self.help_text[metric] = text
+                try:
+                    self.help_text[metric] = text.decode('utf-8')
+                except AttributeError:
+                    self.help_text[metric] = text
             except Exception:
                 pass
 
